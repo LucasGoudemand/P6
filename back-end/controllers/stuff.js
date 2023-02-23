@@ -65,6 +65,11 @@ exports.modifyThing = (req, res, next) => {
       req.file.filename
     }`;
     Thing.findOne({ _id: req.params.id }).then((itemFoundInBdd) => {
+      if (itemFoundInBdd.userId !== req.auth.userId) {
+        //On verifie que l'utilisateur ID coorespond bien avec l'id contenu dans le token
+        res.status(401).json({ message: "Not authorized" });
+        return;
+      }
       const filenameToDelete = itemFoundInBdd.imageUrl.split("/images/")[1]; // On récupére le nom de l'image à supprimer depuis la bdd
       fs.unlink(`images/${filenameToDelete}`, () => {
         console.log("Img deleted from the API");
